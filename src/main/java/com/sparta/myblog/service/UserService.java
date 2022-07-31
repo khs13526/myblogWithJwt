@@ -8,8 +8,10 @@ import com.sparta.myblog.dto.UserRequestDto;
 import com.sparta.myblog.model.User;
 import com.sparta.myblog.repository.UserRepository;
 import com.sparta.myblog.security.jwt.JwtProvider;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,25 +31,33 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtProvider jwtProvider;
 
-    public boolean registerUser(SignupRequestDto signupRequestDto) {
+
+    public String registerUser(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
         if(userRepository.findByUsername(username).isPresent()){
-            throw new IllegalArgumentException("중복된 닉네임입니다");
+            return "401";
+        }
+        if(!signupRequestDto.getPassword().equals(signupRequestDto.getPasswordCheck())) {
+            return "402";
         }
 
         String encryptedPassword = bCryptPasswordEncoder.encode(signupRequestDto.getPassword());
         User user = new User(signupRequestDto.getUsername(), encryptedPassword);
         userRepository.save(user);
-        return true;
+        return "200";
     }
 
-    public User login(UserRequestDto requestDto) {
-        User user = userRepository.findByUsername(requestDto.getUsername()).orElseThrow(
-                () -> new IllegalArgumentException("닉네임을 찾을 수 없습니다."));
-        if(!bCryptPasswordEncoder.matches(requestDto.getPassword(), user.getPassword())){
-            throw new IllegalArgumentException("비밀번호가 다릅니다.");
+    public String login(UserRequestDto requestDto) {
+        Optional<User> user = userRepository.findByUsername(requestDto.getUsername());
+        if(user.isEmpty()){
+            return "403";
+        } else {
+            if(!bCryptPasswordEncoder.matches(requestDto.getPassword(), user.get().getPassword())){
+                return "403";
+            } else {
+                return "200";
+            }
         }
-        return user;
     }
 
     public Map<String, String> createToken(User user) {
@@ -56,7 +69,9 @@ public class UserService {
         return result;
     }
 
-    public UserDetails loadUserByUsername(String username) {
-        return userRepository.findUserDetailsByUsername(username);
+    public boolean validateUser(SignupRequestDto signupRequestDto) {
+        return Pattern.matches("^[A-Za-z0-9]{4,12}$", signupRequestDto.getUsername()) && Pattern.matches("^[A-Za-z0-9]{4,32}$", signupRequestDto.getPassword());
     }
+
+
 }

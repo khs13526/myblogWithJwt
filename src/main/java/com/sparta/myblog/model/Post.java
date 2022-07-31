@@ -21,21 +21,17 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private String password;
 
     public Post(PostRequestDto requestDto){
         this.title = requestDto.getTitle();
         this.writer = requestDto.getWriter();
         this.content = requestDto.getContent();
-        this.password = requestDto.getPassword();
     }
 
-    public Post(String title, String writer, String content, String password) {
+    public Post(String title, String writer, String content) {
         this.title = title;
         this.writer = writer;
         this.content = content;
-        this.password = password;
 
     }
 
@@ -43,7 +39,6 @@ public class Post extends Timestamped {
         this.title = requestDto.getTitle();
         this.writer = requestDto.getWriter();
         this.content = requestDto.getContent();
-        this.password = requestDto.getPassword();
     }
 }
 

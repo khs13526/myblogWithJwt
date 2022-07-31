@@ -11,7 +11,7 @@ import java.util.Collection;
 @Getter
 @Entity
 @NoArgsConstructor
-public class User implements UserDetails {
+public class User extends Timestamped implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -22,12 +22,12 @@ public class PostController {
     private final PostRepository postRepository;
     private final PostService postService;
 
-    @PostMapping("/post")
+    @PostMapping("/auth/post")
     public ApiResult<List<PostDetailMapping>> createPost(@RequestBody PostRequestDto requestDto) throws Exception {
         return ApiUtils.success(postRepository.findPostDetailById(postService.save(requestDto)));
     }
 
-    @GetMapping("/post/auth")
+    @GetMapping("/post")
     public ApiResult<List<PostDetailMapping>> getPosts() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         log.info(mapper.writeValueAsString(postRepository.findAllBy(Sort.by(Sort.Direction.DESC, "createdAt"))));
@@ -35,16 +35,10 @@ public class PostController {
         return ApiUtils.success(postRepository.findAllBy(Sort.by(Sort.Direction.DESC, "createdAt")));
     }
 
-    @GetMapping("/post/auth/{id}")
+    @GetMapping("/post/{id}")
     public ApiResult<List<PostDetailMapping>> getPostById(@PathVariable Long id) {
         return ApiUtils.success(postRepository.findPostDetailById(id));
     }
-
-    @PostMapping("/post/auth/{id}")
-    public ApiResult<Boolean> checkPassword(@PathVariable Long id, @RequestBody PostRequestDto requestDto) throws Exception {
-        return ApiUtils.success(postService.checkPassword(id, requestDto.getPassword()));
-    }
-
 
     @PutMapping("/auth/post/{id}")
     public ApiResult<?> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto) throws Exception {

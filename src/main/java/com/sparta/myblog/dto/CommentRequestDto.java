@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class PostRequestDto {
-    private final String title;
-    private final String writer;
+public class CommentRequestDto {
+    private final Long postId;
     private final String content;
+    private final String writer;
 }

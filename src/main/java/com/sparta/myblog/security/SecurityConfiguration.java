@@ -50,9 +50,8 @@ public class SecurityConfiguration {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/user/auth/**").permitAll()
-                .antMatchers("/api/post/auth/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/api/auth/**").authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .apply(new JwtTokenFilterConfigurer(jwtProvider));
         return http.build();
