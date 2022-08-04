@@ -1,24 +1,15 @@
 package com.sparta.myblog.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.myblog.dto.SignupRequestDto;
-import com.sparta.myblog.dto.TokenDto;
 import com.sparta.myblog.dto.UserRequestDto;
 import com.sparta.myblog.model.User;
 import com.sparta.myblog.repository.UserRepository;
 import com.sparta.myblog.security.jwt.JwtProvider;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -58,15 +49,6 @@ public class UserService {
                 return "200";
             }
         }
-    }
-
-    public Map<String, String> createToken(User user) {
-        TokenDto tokenDto = jwtProvider.createToken(user);
-        Map<String, String> result = new HashMap<>();
-        result.put("accessToken", tokenDto.getAccessToken());
-        result.put("refreshToken", tokenDto.getRefreshToken());
-        result.put("userId", user.getUsername());
-        return result;
     }
 
     public boolean validateUser(SignupRequestDto signupRequestDto) {

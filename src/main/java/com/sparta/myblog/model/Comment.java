@@ -1,7 +1,6 @@
 package com.sparta.myblog.model;
 
 import com.sparta.myblog.dto.CommentRequestDto;
-import com.sparta.myblog.dto.PostRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +22,8 @@ public class Comment extends Timestamped{
 
     @Column(nullable = false)
     private String writer;
+
+
 
     public Comment(Long postId, String content) {
         this.postId = postId;

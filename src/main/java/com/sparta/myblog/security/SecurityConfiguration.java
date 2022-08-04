@@ -1,5 +1,6 @@
 package com.sparta.myblog.security;
 
+import com.sparta.myblog.repository.RefreshTokenRepository;
 import com.sparta.myblog.security.jwt.JwtAccessDeniedHandler;
 import com.sparta.myblog.security.jwt.JwtAuthenticationEntryPoint;
 import com.sparta.myblog.security.jwt.JwtProvider;
@@ -23,6 +24,8 @@ public class SecurityConfiguration {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtProvider jwtProvider;
+
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -53,7 +56,7 @@ public class SecurityConfiguration {
                 .antMatchers("/api/auth/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
-                .apply(new JwtTokenFilterConfigurer(jwtProvider));
+                .apply(new JwtTokenFilterConfigurer(jwtProvider,refreshTokenRepository ));
         return http.build();
     }
 

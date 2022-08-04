@@ -1,8 +1,9 @@
 package com.sparta.myblog.security.jwt;
 
 import com.sparta.myblog.dto.TokenDto;
-import com.sparta.myblog.model.User;
+import com.sparta.myblog.dto.UserRequestDto;
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
-
+@Slf4j
 @Component
 public class JwtProvider {
 
@@ -29,15 +30,15 @@ public class JwtProvider {
     }
 
     //==토큰 생성 메소드==//
-    public TokenDto createToken(User user) {
+    public TokenDto createToken(String username) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + Duration.ofDays(1).toMillis()); // 만료기간 1일
+        Date expiration = new Date(now.getTime() + Duration.ofHours(2).toMillis()); // 만료기간 1일
 
         String accessToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
                 .setIssuedAt(now) // 발급시간(iat)
                 .setExpiration(expiration) // 만료시간(exp)
-                .setSubject(user.getUsername()) //  토큰 제목(subject)
+                .setSubject(username) //  토큰 제목(subject)
                 .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString(secretKey.getBytes())) // 알고리즘, 시크릿 키
                 .compact();
         String refreshToken = Jwts.builder()
@@ -60,8 +61,11 @@ public class JwtProvider {
     }
 
     // Request의 Header에서 token 값을 가져옵니다. "Authorization" : "TOKEN값'
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveAccessToken(HttpServletRequest request) {
         return request.getHeader("Authorization");
+    }
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return request.getHeader("REFRESH-TOKEN");
     }
 
     // 토큰의 유효성 + 만료일자 확인
@@ -73,5 +77,4 @@ public class JwtProvider {
             return false;
         }
     }
-
 }

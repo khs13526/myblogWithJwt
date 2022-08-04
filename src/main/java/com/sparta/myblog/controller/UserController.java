@@ -6,7 +6,8 @@ import com.sparta.myblog.apiResponse.ApiUtils;
 import com.sparta.myblog.dto.SignupRequestDto;
 import com.sparta.myblog.dto.TokenDto;
 import com.sparta.myblog.dto.UserRequestDto;
-import com.sparta.myblog.model.User;
+import com.sparta.myblog.model.RefreshToken;
+import com.sparta.myblog.repository.RefreshTokenRepository;
 import com.sparta.myblog.repository.UserRepository;
 import com.sparta.myblog.security.jwt.JwtProvider;
 import com.sparta.myblog.service.UserService;
@@ -18,17 +19,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
-
     private final JwtProvider jwtProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @PostMapping("/register")
     public ApiResult<?> register(@RequestBody SignupRequestDto requestDto) {
@@ -47,8 +45,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserRequestDto requestDto) throws JsonProcessingException {
         if(userService.login(requestDto).equals("200")) {
-            Optional<User> user = userRepository.findByUsername(requestDto.getUsername());
-            TokenDto tokenDto = jwtProvider.createToken(user.get());
+            TokenDto tokenDto = jwtProvider.createToken(requestDto.getUsername());
+            RefreshToken refreshToken = new RefreshToken(tokenDto.getRefreshToken(),requestDto.getUsername());
+            refreshTokenRepository.save(refreshToken);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Access-Token", tokenDto.getAccessToken());
             headers.add("Refresh-Token",tokenDto.getRefreshToken());
